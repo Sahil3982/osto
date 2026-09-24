@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: osto
+      POSTGRES_USER: osto
+      POSTGRES_PASSWORD: osto-dev-password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U osto -d osto"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgres://osto:osto-dev-password@db:5432/osto?sslmode=disable
+      SESSION_TIMEOUT: 30m
+      LOCKOUT_THRESHOLD: 5
+      LOCKOUT_DURATION: 15m
+    depends_on:
+      db:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
