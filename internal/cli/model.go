@@ -61,6 +61,7 @@ func New(service *auth.Service, sessionTimeout time.Duration) tea.Model {
 func (m *model) Init() tea.Cmd { return textinput.Blink }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.expireSession()
 	m.applyMessage(msg)
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -277,16 +278,20 @@ func (m *model) View() string {
 		return "Goodbye.\n"
 	}
 	header := titleStyle.Render("OSTO / SECURE CLI") + "\n" + mutedStyle.Render("PostgreSQL-backed authentication") + "\n\n"
-	if !m.expiresAt.IsZero() && time.Now().After(m.expiresAt) {
-		m.logout()
-		m.status = "Session expired. Please log in again."
-	}
+	m.expireSession()
 	contentWidth := m.width - 4
 	if contentWidth < 20 {
 		contentWidth = 20
 	}
 	status := lipgloss.NewStyle().Width(contentWidth).Render(m.status)
 	return header + status + "\n\n" + m.input.View() + "\n"
+}
+
+func (m *model) expireSession() {
+	if m.mode == modeAuthenticated && !m.expiresAt.IsZero() && time.Now().After(m.expiresAt) {
+		m.logout()
+		m.status = "Session expired. Please log in again."
+	}
 }
 
 func (m *model) help() string {
