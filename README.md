@@ -56,6 +56,18 @@ After login:
 
 Up/down arrows browse non-sensitive command history and Tab completes commands. Account lockout occurs after five failed password or MFA attempts for 15 minutes. Sessions expire after 30 minutes by default; `SESSION_TIMEOUT`, `LOCKOUT_THRESHOLD`, and `LOCKOUT_DURATION` can override these values.
 
+## Demo
+
+Successful login:
+
+![Successful login](assets/demo/login-success.png)
+
+Authenticated commands:
+
+![Authenticated commands](assets/demo/authenticated-commands.png)
+
+Watch the full CLI demo: [osto-demo.mp4](assets/demo/osto-demo.mp4)
+
 ## Security notes
 
 Passwords are hashed with bcrypt. Passwords and TOTP codes are masked in the CLI and are not saved in command history. TOTP secrets are stored in PostgreSQL and should be encrypted at rest in production. Set a strong database password and use TLS for non-local deployments. The demo defaults are intended for local Docker use only.
