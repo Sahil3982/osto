@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	databaseURL := getenv("DATABASE_URL", "postgres://osto:osto-dev-password@localhost:5432/osto?sslmode=disable")
+	databaseURL := getenv("DATABASE_URL", "postgres://osto:osto-dev-password@localhost:55432/osto?sslmode=disable")
 	pool, err := pgxpool.New(context.Background(), databaseURL)
 	if err != nil {
 		log.Fatal(err)

@@ -26,6 +26,7 @@ type model struct {
 	sessionTimeout  time.Duration
 	pendingUsername string
 	pendingPassword string
+	width           int
 }
 
 type screenMode string
@@ -54,7 +55,7 @@ func New(service *auth.Service, sessionTimeout time.Duration) tea.Model {
 	input.Prompt = "> "
 	input.CharLimit = 256
 	input.Focus()
-	return &model{service: service, input: input, mode: modeCommand, historyIndex: -1, status: "Type help to see available commands.", sessionTimeout: sessionTimeout}
+	return &model{service: service, input: input, mode: modeCommand, historyIndex: -1, status: "Type help to see available commands.", sessionTimeout: sessionTimeout, width: 80}
 }
 
 func (m *model) Init() tea.Cmd { return textinput.Blink }
@@ -80,6 +81,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case tea.WindowSizeMsg:
+		m.width = msg.Width
 		m.input.Width = msg.Width - 4
 	}
 	var cmd tea.Cmd
@@ -279,7 +281,12 @@ func (m *model) View() string {
 		m.logout()
 		m.status = "Session expired. Please log in again."
 	}
-	return header + m.status + "\n\n" + m.input.View() + "\n"
+	contentWidth := m.width - 4
+	if contentWidth < 20 {
+		contentWidth = 20
+	}
+	status := lipgloss.NewStyle().Width(contentWidth).Render(m.status)
+	return header + status + "\n\n" + m.input.View() + "\n"
 }
 
 func (m *model) help() string {
